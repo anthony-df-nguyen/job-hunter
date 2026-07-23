@@ -1,0 +1,12 @@
+.DS_Store
+
+# Backend
+backend/venv/
+backend/app/jobhunter.db
+backend/**/__pycache__/
+*.pyc
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/next-env.d.ts
