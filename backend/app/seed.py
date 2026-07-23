@@ -41,9 +41,7 @@ DEFAULT_SKIP_TITLE_KEYWORDS = [
     "entry-level",
     "internship",
     "intern",
-    "associate data",
     "analyst i ",
-    "analyst i,",
 ]
 
 DEFAULT_SKIP_DESCRIPTION_KEYWORDS = [
@@ -98,11 +96,21 @@ def seed_run_settings(db: Session) -> None:
             sites=["linkedin", "indeed"],
             results_per_search=50,
             hours_old=24,
-            min_salary=160_000,
+            min_salary=100_000,
             include_jobs_without_salary=True,
         )
     )
     db.commit()
+
+
+def seed_locations(db: Session) -> None:
+    """Guarantees the "Remote" location always exists, independent of whether any
+    search combos exist — it's a magic value the location field's autocomplete and
+    helper text point users at, so it shouldn't require reading instructions to
+    recreate if a user's default combos (and thus this row) ever get cleaned up."""
+    if db.query(Location).filter_by(name="Remote").first() is None:
+        db.add(Location(name="Remote"))
+        db.commit()
 
 
 def seed_titles_locations_and_searches(db: Session) -> None:
@@ -151,4 +159,5 @@ def seed_all(db: Session) -> None:
     seed_job_statuses(db)
     seed_keyword_rules(db)
     seed_run_settings(db)
+    seed_locations(db)
     seed_titles_locations_and_searches(db)

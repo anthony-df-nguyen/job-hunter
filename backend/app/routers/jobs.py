@@ -40,6 +40,12 @@ def list_jobs(
     return q.offset(offset).limit(limit).all()
 
 
+@router.delete("", status_code=204)
+def delete_all_jobs(db: Session = Depends(get_db)):
+    db.query(models.Job).delete()
+    db.commit()
+
+
 @router.patch("/{job_id}", response_model=schemas.JobRead)
 def update_job(job_id: int, payload: schemas.JobUpdate, db: Session = Depends(get_db)):
     row = db.get(models.Job, job_id)
@@ -52,3 +58,12 @@ def update_job(job_id: int, payload: schemas.JobUpdate, db: Session = Depends(ge
     db.commit()
     db.refresh(row)
     return row
+
+
+@router.delete("/{job_id}", status_code=204)
+def delete_job(job_id: int, db: Session = Depends(get_db)):
+    row = db.get(models.Job, job_id)
+    if row is None:
+        raise HTTPException(404, "Job not found")
+    db.delete(row)
+    db.commit()

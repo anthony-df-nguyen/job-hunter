@@ -32,27 +32,14 @@ export default function TagList({
   return (
     <div className="space-y-2">
       <div>
-        <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{label}</h3>
-        {hint && <p className="text-xs text-zinc-500 dark:text-zinc-400">{hint}</p>}
+        <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+          {label}
+        </h3>
+        {hint && (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{hint}</p>
+        )}
       </div>
-      <div className="flex flex-wrap gap-2">
-        {items.map((item) => (
-          <span
-            key={item.id}
-            className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-sm text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100"
-          >
-            {item.text}
-            <button
-              type="button"
-              onClick={() => onRemove(item.id)}
-              className="ml-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
-              aria-label={`Remove ${item.text}`}
-            >
-              ×
-            </button>
-          </span>
-        ))}
-      </div>
+      {/* Text Entry */}
       <div className="flex gap-2">
         <input
           value={draft}
@@ -73,6 +60,25 @@ export default function TagList({
         >
           Add
         </button>
+      </div>
+      {/* Chips */}
+      <div className="flex flex-wrap gap-2">
+        {items.map((item) => (
+          <span
+            key={item.id}
+            className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-sm text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100"
+          >
+            {item.text}
+            <button
+              type="button"
+              onClick={() => onRemove(item.id)}
+              className="ml-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+              aria-label={`Remove ${item.text}`}
+            >
+              ×
+            </button>
+          </span>
+        ))}
       </div>
     </div>
   );

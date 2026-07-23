@@ -67,13 +67,14 @@ export interface Job {
   run_id: number | null;
 }
 
-export type RunStatus = "running" | "done" | "error";
+export type RunStatus = "running" | "done" | "error" | "cancelled";
 
 export interface Run {
   id: number;
   started_at: string;
   finished_at: string | null;
   status: RunStatus;
+  cancel_requested: boolean;
   current_search_title: string | null;
   current_search_location: string | null;
   current_search_is_remote: boolean | null;

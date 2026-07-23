@@ -23,7 +23,7 @@ from app.database import Base
 KEYWORD_CATEGORIES = ("good_title", "skip_title", "skip_description", "contract_type")
 
 # Fixed set of values for Run.status.
-RUN_STATUSES = ("running", "done", "error")
+RUN_STATUSES = ("running", "done", "error", "cancelled")
 
 
 class JobTitle(Base):
@@ -144,6 +144,7 @@ class Run(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     status: Mapped[str] = mapped_column(String, default="running")
+    cancel_requested: Mapped[bool] = mapped_column(Boolean, default=False)
     current_search_title: Mapped[str | None] = mapped_column(String, nullable=True)
     current_search_location: Mapped[str | None] = mapped_column(String, nullable=True)
     current_search_is_remote: Mapped[bool | None] = mapped_column(

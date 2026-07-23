@@ -2,42 +2,57 @@
 
 This app has two parts that both need to be running at once: the FastAPI
 backend (does the scraping, owns the database) and the Next.js frontend
-(the UI you actually use). Each needs its own one-time setup.
+(the UI you actually use).
 
 ## 1. Get the folder
 
 Copy this whole repo onto your computer — the folder structure (`backend/`,
 `frontend/`) matters.
 
-## 2. Backend setup
+## 2. Prerequisites
 
-Requires Python 3.10+ (`python3 --version` to check; otherwise get it from
-python.org).
+- Python 3.10+ (`python3 --version` to check; otherwise get it from
+  python.org)
+- Node.js 18+ (`node --version` to check; otherwise get it from nodejs.org)
+
+## 3. Run it
+
+- **Mac**: double-click `start.command` in Finder. (First double-click may
+  show a "cannot be opened because it is from an unidentified developer"
+  warning — right-click it and choose **Open** instead to bypass this
+  one-time check.)
+- **Windows**: double-click `start.bat`. This opens two console windows, one
+  for the backend and one for the frontend — close both to stop the app.
+- **Terminal** (either OS): `./start.sh`, Ctrl+C stops both.
+
+Whichever you use, the first run creates the backend virtualenv, installs
+`backend/requirements.txt`, and runs `npm install` for the frontend
+automatically; every run after that skips straight to starting both
+servers.
+
+Open http://localhost:3000 — that's the app. The backend serves the API at
+http://localhost:8000 (its interactive docs are at
+http://localhost:8000/docs if you want to poke at the API directly).
+
+First launch creates `backend/app/jobhunter.db` (a SQLite file) and seeds it
+with a starting set of job statuses, keyword filters, and one example search
+combo — all editable from the Settings page afterward.
+
+## 4. Manual setup (if you'd rather not use the script, or it fails)
 
 ```bash
+# Backend
 cd backend
 python3 -m venv venv
 source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-You'll see `(venv)` in your terminal prompt once the virtual env is active —
-that keeps this project's Python packages isolated from everything else on
-your machine.
-
-## 3. Frontend setup
-
-Requires Node.js 18+ (`node --version` to check; otherwise get it from
-nodejs.org).
-
-```bash
+# Frontend, in a second terminal
 cd frontend
 npm install
 ```
 
-## 4. Run it
-
-Two terminals, both left running:
+Then, in two terminals left running:
 
 ```bash
 # Terminal 1
@@ -51,14 +66,6 @@ uvicorn app.main:app --reload
 cd frontend
 npm run dev
 ```
-
-Open http://localhost:3000 — that's the app. The backend serves the API at
-http://localhost:8000 (its interactive docs are at
-http://localhost:8000/docs if you want to poke at the API directly).
-
-First launch creates `backend/app/jobhunter.db` (a SQLite file) and seeds it
-with a starting set of job statuses, keyword filters, and one example search
-combo — all editable from the Settings page afterward.
 
 ## 5. Point your editor at the right Python interpreter (optional)
 

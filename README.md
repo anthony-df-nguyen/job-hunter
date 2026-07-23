@@ -32,18 +32,26 @@ Two local processes, no containers:
 
 ## Running it
 
-See [`SETUP.md`](SETUP.md) for first-time setup. Quick version, in two
-terminals:
+Requires Python 3.10+ and Node.js 18+ installed.
 
-```bash
-# Terminal 1 — backend
-cd backend
-source venv/bin/activate
-uvicorn app.main:app --reload
+- **Python**: [python.org/downloads](https://www.python.org/downloads/)
+  (Windows/Mac installers). Windows users can also run
+  `winget install --id Python.Python.3.10 -e` from a terminal; Mac users
+  with [Homebrew](https://brew.sh) can run `brew install python@3.10`.
+- **Node.js**: [nodejs.org](https://nodejs.org/en/download) — grab the LTS
+  build. Windows: `winget install --id OpenJS.NodeJS.LTS -e`. Mac with
+  Homebrew: `brew install node`.
 
-# Terminal 2 — frontend
-cd frontend
-npm run dev
-```
+- **Mac**: double-click `start.command` in Finder.
+- **Windows**: double-click `start.bat`.
+- **Terminal** (either OS): `./start.sh`
 
-Then open http://localhost:3000.
+First run installs backend/frontend dependencies automatically; every run
+after that just starts both servers. Then open http://localhost:3000.
+
+(Mac only: the first double-click of `start.command` may trigger a "cannot
+be opened because it is from an unidentified developer" warning — right-click
+it and choose **Open** instead to bypass this one-time check.)
+
+See [`SETUP.md`](SETUP.md) if you'd rather set things up manually or hit an
+issue with the script.

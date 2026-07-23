@@ -296,8 +296,19 @@ def run_scrape(run_id: int) -> None:
         seen_urls = {normalize_url(u) for (u,) in db.query(models.Job.url).all()}
         today = date.today()
         all_jobs = []
+        cancelled = False
 
         for i, config in enumerate(search_configs):
+            # Each commit below ends the prior transaction, so this refresh
+            # picks up a cancel_requested=True written by another request in
+            # between search iterations — cancellation only takes effect
+            # between searches, not mid-scrape_jobs() call, since that's a
+            # single blocking network call we can't interrupt.
+            db.refresh(run)
+            if run.cancel_requested:
+                cancelled = True
+                break
+
             run.current_search_title = config.job_title.term
             run.current_search_location = config.location.name
             run.current_search_is_remote = config.is_remote
@@ -321,11 +332,12 @@ def run_scrape(run_id: int) -> None:
                 # One bad search shouldn't abort the whole run.
                 continue
 
-        run.progress_completed = len(search_configs)
-        db.commit()
+        if not cancelled:
+            run.progress_completed = len(search_configs)
+            db.commit()
 
         if not all_jobs:
-            run.status = "done"
+            run.status = "cancelled" if cancelled else "done"
             run.finished_at = datetime.utcnow()
             db.commit()
             return
@@ -372,7 +384,7 @@ def run_scrape(run_id: int) -> None:
         run.new_jobs_count = new_jobs_count
         run.filtered_count = filtered_count
         run.skipped_seen_count = skipped_seen_count
-        run.status = "done"
+        run.status = "cancelled" if cancelled else "done"
         run.finished_at = datetime.utcnow()
         db.commit()
     except Exception as e:

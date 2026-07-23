@@ -35,6 +35,19 @@ def get_run(run_id: int, db: Session = Depends(get_db)):
     return row
 
 
+@router.post("/{run_id}/cancel", response_model=schemas.RunRead)
+def cancel_run(run_id: int, db: Session = Depends(get_db)):
+    row = db.get(models.Run, run_id)
+    if row is None:
+        raise HTTPException(404, "Run not found")
+    if row.status != "running":
+        raise HTTPException(409, "Run is not in progress")
+    row.cancel_requested = True
+    db.commit()
+    db.refresh(row)
+    return row
+
+
 @router.get("", response_model=list[schemas.RunRead])
 def list_runs(limit: int = 50, db: Session = Depends(get_db)):
     return db.query(models.Run).order_by(models.Run.started_at.desc()).limit(limit).all()

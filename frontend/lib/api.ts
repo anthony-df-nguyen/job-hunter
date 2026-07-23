@@ -56,7 +56,15 @@ export const createSearchConfig = (payload: {
     body: JSON.stringify(payload),
   });
 
-export const updateSearchConfig = (id: number, payload: Partial<{ active: boolean }>) =>
+export const updateSearchConfig = (
+  id: number,
+  payload: Partial<{
+    job_title_id: number;
+    location_id: number;
+    is_remote: boolean;
+    active: boolean;
+  }>,
+) =>
   request<SearchConfig>(`/search-configs/${id}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
@@ -106,6 +114,13 @@ export const updateRunSettings = (payload: Partial<RunSettings>) =>
 export const updateJob = (id: number, payload: Partial<{ status_id: number; notes: string }>) =>
   request<Job>(`/jobs/${id}`, { method: "PATCH", body: JSON.stringify(payload) });
 
+export const deleteJob = (id: number) => request<void>(`/jobs/${id}`, { method: "DELETE" });
+
+export const deleteAllJobs = () => request<void>("/jobs", { method: "DELETE" });
+
 // ── Runs ──────────────────────────────────────────────────────────────────
 
 export const startRun = () => request<Run>("/runs", { method: "POST" });
+
+export const cancelRun = (id: number) =>
+  request<Run>(`/runs/${id}/cancel`, { method: "POST" });

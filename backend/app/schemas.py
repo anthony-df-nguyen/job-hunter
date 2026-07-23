@@ -175,6 +175,7 @@ class RunRead(BaseModel):
     started_at: datetime
     finished_at: datetime | None
     status: str
+    cancel_requested: bool
     current_search_title: str | None
     current_search_location: str | None
     current_search_is_remote: bool | None
