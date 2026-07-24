@@ -47,7 +47,7 @@ export default function RunSettingsForm() {
   return (
     <div className="max-w-md space-y-4">
       <div>
-        <h3 className="mb-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">Sites</h3>
+        <h3 className="mb-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">Search Theses Sites</h3>
         <div className="flex flex-wrap gap-3">
           {AVAILABLE_SITES.map((site) => (
             <label key={site} className="flex items-center gap-1.5 text-sm">

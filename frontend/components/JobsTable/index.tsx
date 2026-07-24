@@ -238,26 +238,28 @@ export default function JobsTable({
       <div className="flex justify-end">
         <ColumnsMenu api={gridApi} />
       </div>
-      <AgGridReact<Row>
-        theme={theme}
-        rowData={rowData}
-        columnDefs={columns as ColDef<Row>[]}
-        getRowId={(params) => String(params.data.id)}
-        initialState={initialState}
-        onGridReady={handleGridReady}
-        onStateUpdated={handleStateUpdated}
-        domLayout="autoHeight"
-        singleClickEdit
-        stopEditingWhenCellsLoseFocus
-        noRowsOverlayComponent={NoRowsOverlay}
-        isFullWidthRow={isFullWidthRow}
-        fullWidthCellRenderer={DescriptionDetailRenderer}
-        fullWidthCellRendererParams={{ maxHeight: detailMaxHeight }}
-        getRowHeight={getRowHeight}
-        postSortRows={postSortRows}
-        maintainColumnOrder
-        defaultColDef={{ sortable: true, resizable: true, minWidth: 80 }}
-      />
+      <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+        <AgGridReact<Row>
+          theme={theme}
+          rowData={rowData}
+          columnDefs={columns as ColDef<Row>[]}
+          getRowId={(params) => String(params.data.id)}
+          initialState={initialState}
+          onGridReady={handleGridReady}
+          onStateUpdated={handleStateUpdated}
+          domLayout="autoHeight"
+          singleClickEdit
+          stopEditingWhenCellsLoseFocus
+          noRowsOverlayComponent={NoRowsOverlay}
+          isFullWidthRow={isFullWidthRow}
+          fullWidthCellRenderer={DescriptionDetailRenderer}
+          fullWidthCellRendererParams={{ maxHeight: detailMaxHeight }}
+          getRowHeight={getRowHeight}
+          postSortRows={postSortRows}
+          maintainColumnOrder
+          defaultColDef={{ sortable: true, resizable: true, minWidth: 80 }}
+        />
+      </div>
     </div>
   );
 }

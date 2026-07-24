@@ -34,63 +34,12 @@ export default function JobStatusesEditor() {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Job Statuses</h3>
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        The pipeline stages shown in the Jobs table&apos;s status dropdown. The default
-        is assigned to newly-scraped jobs.
+        The pipeline stages shown in the Jobs table&apos;s status dropdown. The
+        starred (★) status is the default — newly-scraped jobs are assigned it
+        automatically. Click a status&apos;s star to make it the default.
       </p>
-      <ul className="space-y-1">
-        {(statuses ?? []).map((s) => (
-          <li
-            key={s.id}
-            className="flex items-center justify-between rounded-md border border-zinc-200 px-3 py-1.5 text-sm dark:border-zinc-800"
-          >
-            <span className="flex items-center gap-2">
-              <input
-                type="color"
-                defaultValue={s.color}
-                onChange={async (e) => {
-                  await updateStatus(s.id, { color: e.target.value });
-                  mutate();
-                }}
-                aria-label={`Color for ${s.name}`}
-                className="h-6 w-6 cursor-pointer rounded border border-zinc-300 bg-transparent p-0 dark:border-zinc-700"
-              />
-              <input
-                type="text"
-                defaultValue={s.name}
-                onBlur={async (e) => {
-                  if (e.target.value.trim() && e.target.value !== s.name) {
-                    await updateStatus(s.id, { name: e.target.value.trim() });
-                    mutate();
-                  }
-                }}
-                className="rounded-md border border-transparent bg-transparent px-1 py-0.5 hover:border-zinc-300 focus:border-zinc-300 dark:hover:border-zinc-700 dark:focus:border-zinc-700"
-              />
-              <label className="flex items-center gap-1 text-xs text-zinc-500">
-                <input
-                  type="radio"
-                  name="default-status"
-                  checked={s.is_default}
-                  onChange={async () => {
-                    await updateStatus(s.id, { is_default: true });
-                    mutate();
-                  }}
-                />
-                Default for new jobs
-              </label>
-            </span>
-            <button
-              type="button"
-              onClick={() => handleRemove(s.id)}
-              className="text-zinc-400 hover:text-red-600"
-              aria-label={`Remove ${s.name}`}
-            >
-              ×
-            </button>
-          </li>
-        ))}
-      </ul>
+      {/* Add Status */}
       <div className="flex gap-2">
         <input
           value={draft}
@@ -113,6 +62,69 @@ export default function JobStatusesEditor() {
         </button>
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}
+
+      {/* List of Current Statuses */}
+      <ul className="space-y-1">
+        {(statuses ?? []).map((s) => (
+          <li
+            key={s.id}
+            className="flex items-center justify-between rounded-md border border-zinc-200 px-3 py-1.5 text-sm dark:border-zinc-800"
+          >
+            <span className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  if (s.is_default) return;
+                  await updateStatus(s.id, { is_default: true });
+                  mutate();
+                }}
+                title={s.is_default ? "Default for new jobs" : "Set as default"}
+                aria-label={
+                  s.is_default
+                    ? "Default status"
+                    : `Set ${s.name} as default status`
+                }
+                className={
+                  s.is_default
+                    ? "text-amber-500"
+                    : "text-zinc-300 hover:text-amber-400 dark:text-zinc-600"
+                }
+              >
+                {s.is_default ? "★" : "☆"}
+              </button>
+              <input
+                type="color"
+                defaultValue={s.color}
+                onChange={async (e) => {
+                  await updateStatus(s.id, { color: e.target.value });
+                  mutate();
+                }}
+                aria-label={`Color for ${s.name}`}
+                className="h-6 w-6 cursor-pointer rounded border border-zinc-300 bg-transparent p-0 dark:border-zinc-700"
+              />
+              <input
+                type="text"
+                defaultValue={s.name}
+                onBlur={async (e) => {
+                  if (e.target.value.trim() && e.target.value !== s.name) {
+                    await updateStatus(s.id, { name: e.target.value.trim() });
+                    mutate();
+                  }
+                }}
+                className="rounded-md border border-transparent bg-transparent px-1 py-0.5 hover:border-zinc-300 focus:border-zinc-300 dark:hover:border-zinc-700 dark:focus:border-zinc-700"
+              />
+            </span>
+            <button
+              type="button"
+              onClick={() => handleRemove(s.id)}
+              className="text-zinc-400 hover:text-red-600"
+              aria-label={`Remove ${s.name}`}
+            >
+              ×
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -162,17 +162,14 @@ export function useJobColumns({
         maxWidth: 50,
         sortable: false,
         resizable: false,
+        pinned: "right",
         suppressMovable: true,
         cellRenderer: (params: ICellRendererParams<Job>) => {
           const job = params.data;
           if (!job) return null;
           return (
             <button
-              onClick={() => {
-                if (confirm(`Delete "${job.title}" at ${job.company}?`)) {
-                  onDelete(job.id);
-                }
-              }}
+              onClick={() => onDelete(job.id)}
               className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
               aria-label={`Delete ${job.title}`}
               title="Delete"

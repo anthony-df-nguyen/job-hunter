@@ -67,7 +67,11 @@ export default function SearchConfigsEditor() {
         resolveJobTitleId(newTitle),
         resolveLocationId(newLocation),
       ]);
-      await createSearchConfig({ job_title_id, location_id, is_remote: newIsRemote });
+      await createSearchConfig({
+        job_title_id,
+        location_id,
+        is_remote: newIsRemote,
+      });
       setNewTitle("");
       setNewLocation("");
       setNewIsRemote(false);
@@ -109,7 +113,9 @@ export default function SearchConfigsEditor() {
     const usedTitleIds = new Set((configs ?? []).map((c) => c.job_title_id));
     const usedLocationIds = new Set((configs ?? []).map((c) => c.location_id));
     const unusedTitles = (titles ?? []).filter((t) => !usedTitleIds.has(t.id));
-    const unusedLocations = (locations ?? []).filter((l) => !usedLocationIds.has(l.id));
+    const unusedLocations = (locations ?? []).filter(
+      (l) => !usedLocationIds.has(l.id),
+    );
     try {
       await Promise.all([
         ...unusedTitles.map((t) => deleteJobTitle(t.id)),
@@ -129,82 +135,36 @@ export default function SearchConfigsEditor() {
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        Each row is one search JobSpy runs — not every title needs to be paired with
-        every location. <strong>Location</strong> is the place text sent to the job
-        board (type &ldquo;Remote&rdquo; for a nationwide search with no city attached).{" "}
-        <strong>Remote-only</strong> is a separate filter on top of that: check it to
-        restrict results to remote listings for whatever location you typed — e.g.
-        title=&ldquo;Data Scientist&rdquo;, location=&ldquo;Orange County, CA&rdquo;,
-        remote-only=checked finds remote roles based near Orange County, not just jobs
-        physically in it.
-      </p>
+      <div className="text-xs text-zinc-500 dark:text-zinc-400">
+        <div>
+          {" "}
+          Each row is one search JobSpy runs — not every title needs to be
+          paired with every location.
+        </div>
+        <div>
+          <ul className="list-disc ml-3">
+            <li>
+              {" "}
+              <strong>Location</strong>&nbsp;is the place text sent to the job
+              board (type &ldquo;Remote&rdquo; for a nationwide search with no
+              city attached).{" "}
+            </li>
+            <li>
+              {" "}
+              <strong>Remote-only</strong> &nbsp;is a separate filter on top of
+              that: check it to restrict results to remote listings for whatever
+              location you typed — e.g. title=&ldquo;Data Scientist&rdquo;,
+              location=&ldquo;Orange County, CA&rdquo;, remote-only=checked
+              finds remote roles based near Orange County, not just jobs
+              physically in it.
+            </li>
+          </ul>
+        </div>
+        <div></div>
+      </div>
 
-      <ul className="space-y-1">
-        {(configs ?? []).map((c) => (
-          <li
-            key={c.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-zinc-200 px-3 py-1.5 text-sm dark:border-zinc-800"
-          >
-            <span className="flex flex-wrap items-center gap-2">
-              <input
-                type="text"
-                list="job-title-options"
-                defaultValue={c.job_title.term}
-                onBlur={(e) => handleRenameTitle(c, e.target.value)}
-                className="rounded-md border border-transparent bg-transparent px-1 py-0.5 font-medium hover:border-zinc-300 focus:border-zinc-300 dark:hover:border-zinc-700 dark:focus:border-zinc-700"
-              />
-              <span className="text-zinc-400">·</span>
-              <input
-                type="text"
-                list="location-options"
-                defaultValue={c.location.name}
-                onBlur={(e) => handleRenameLocation(c, e.target.value)}
-                className="rounded-md border border-transparent bg-transparent px-1 py-0.5 hover:border-zinc-300 focus:border-zinc-300 dark:hover:border-zinc-700 dark:focus:border-zinc-700"
-              />
-              <label className="flex items-center gap-1 text-xs text-zinc-500">
-                <input
-                  type="checkbox"
-                  checked={c.is_remote}
-                  onChange={async (e) => {
-                    await updateSearchConfig(c.id, { is_remote: e.target.checked });
-                    mutateConfigs();
-                  }}
-                />
-                Remote-only
-              </label>
-              {!c.active && (
-                <span className="text-xs text-zinc-400">(inactive)</span>
-              )}
-            </span>
-            <span className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={async () => {
-                  await updateSearchConfig(c.id, { active: !c.active });
-                  mutateConfigs();
-                }}
-                className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
-              >
-                {c.active ? "Deactivate" : "Activate"}
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  await deleteSearchConfig(c.id);
-                  mutateConfigs();
-                }}
-                className="text-zinc-400 hover:text-red-600"
-                aria-label="Remove combo"
-              >
-                ×
-              </button>
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="flex flex-wrap items-center gap-2 pt-2">
+      {/* Search Combo Input */}
+      <div className="flex flex-wrap items-center gap-2 py-2">
         <input
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
@@ -232,25 +192,109 @@ export default function SearchConfigsEditor() {
         <button
           type="button"
           onClick={handleAddCombo}
-          className="rounded-md border border-zinc-300 px-3 py-1 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          className="ml-4 rounded-md border border-zinc-300 px-3 py-1 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
           Add combo
         </button>
+        <div className="ml-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleCleanup}
+            className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            Clean up unused titles &amp; locations
+          </button>
+          {cleanupMessage && (
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              {cleanupMessage}
+            </p>
+          )}
+        </div>
       </div>
       {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <div className="flex items-center justify-between pt-1">
-        <button
-          type="button"
-          onClick={handleCleanup}
-          className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
-        >
-          Clean up unused titles &amp; locations
-        </button>
-        {cleanupMessage && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">{cleanupMessage}</p>
-        )}
-      </div>
+      {/* List of Existing Combos */}
+      {configs && configs.length > 0 && (
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          {configs.filter((c) => c.active).length} of {configs.length} active
+        </p>
+      )}
+      <ul className="space-y-1">
+        {(configs ?? []).map((c) => (
+          <li
+            key={c.id}
+            className={`flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm ${
+              c.active
+                ? "border-zinc-200 dark:border-zinc-800"
+                : "border-zinc-200 bg-zinc-200 opacity-60 dark:border-zinc-800 dark:bg-black/100"
+            }`}
+          >
+            <span className="flex flex-wrap items-center gap-2">
+              <input
+                type="text"
+                list="job-title-options"
+                defaultValue={c.job_title.term}
+                onBlur={(e) => handleRenameTitle(c, e.target.value)}
+                className="rounded-md border border-transparent bg-transparent px-1 py-0.5 font-medium hover:border-zinc-300 focus:border-zinc-300 dark:hover:border-zinc-700 dark:focus:border-zinc-700"
+              />
+              <input
+                type="text"
+                list="location-options"
+                defaultValue={c.location.name}
+                onBlur={(e) => handleRenameLocation(c, e.target.value)}
+                className="rounded-md border border-transparent bg-transparent px-1 py-0.5 hover:border-zinc-300 focus:border-zinc-300 dark:hover:border-zinc-700 dark:focus:border-zinc-700"
+              />
+              <label className="flex items-center gap-1 text-xs text-zinc-500">
+                <input
+                  type="checkbox"
+                  checked={c.is_remote}
+                  onChange={async (e) => {
+                    await updateSearchConfig(c.id, {
+                      is_remote: e.target.checked,
+                    });
+                    mutateConfigs();
+                  }}
+                />
+                Remote-only
+              </label>
+            </span>
+            <span className="flex items-center gap-3">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={c.active}
+                aria-label={c.active ? "Deactivate combo" : "Activate combo"}
+                onClick={async () => {
+                  await updateSearchConfig(c.id, { active: !c.active });
+                  mutateConfigs();
+                }}
+                className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                  c.active
+                    ? "bg-sky-500 dark:bg-sky-500"
+                    : "bg-zinc-300 dark:bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform dark:bg-zinc-900 ${
+                    c.active ? "translate-x-[18px]" : "translate-x-[2px]"
+                  }`}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await deleteSearchConfig(c.id);
+                  mutateConfigs();
+                }}
+                className="text-zinc-400 hover:text-red-600"
+                aria-label="Remove combo"
+              >
+                ×
+              </button>
+            </span>
+          </li>
+        ))}
+      </ul>
 
       <datalist id="job-title-options">
         {(titles ?? []).map((t) => (

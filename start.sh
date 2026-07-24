@@ -25,4 +25,7 @@ trap 'kill $(jobs -p) 2>/dev/null' EXIT
 (cd backend && venv/bin/uvicorn app.main:app --reload) &
 (cd frontend && npm run dev) &
 
+( until curl -s -o /dev/null http://localhost:3000; do sleep 0.5; done
+  open http://localhost:3000 ) &
+
 wait
