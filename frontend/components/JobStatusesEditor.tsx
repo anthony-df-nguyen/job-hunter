@@ -47,6 +47,16 @@ export default function JobStatusesEditor() {
           >
             <span className="flex items-center gap-2">
               <input
+                type="color"
+                defaultValue={s.color}
+                onChange={async (e) => {
+                  await updateStatus(s.id, { color: e.target.value });
+                  mutate();
+                }}
+                aria-label={`Color for ${s.name}`}
+                className="h-6 w-6 cursor-pointer rounded border border-zinc-300 bg-transparent p-0 dark:border-zinc-700"
+              />
+              <input
                 type="text"
                 defaultValue={s.name}
                 onBlur={async (e) => {

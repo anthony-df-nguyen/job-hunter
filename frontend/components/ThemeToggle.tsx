@@ -8,6 +8,7 @@ const STORAGE_KEY = "theme";
 
 function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", theme === "dark");
+  document.documentElement.dataset.agThemeMode = theme;
 }
 
 export default function ThemeToggle() {

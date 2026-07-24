@@ -38,6 +38,7 @@ export interface JobStatus {
   name: string;
   sort_order: number;
   is_default: boolean;
+  color: string;
 }
 
 export interface RunSettings {
@@ -63,6 +64,7 @@ export interface Job {
   salary_min: number | null;
   salary_max: number | null;
   salary_interval: string | null;
+  description: string | null;
   search_config_id: number | null;
   run_id: number | null;
 }

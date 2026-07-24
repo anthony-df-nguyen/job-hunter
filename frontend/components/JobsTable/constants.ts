@@ -11,4 +11,4 @@ export const COLUMN_LABELS: Record<string, string> = {
   delete: "Delete",
 };
 
-export const STORAGE_KEY = "jobs-table-layout";
+export const STORAGE_KEY = "jobs-grid-state";

@@ -91,6 +91,7 @@ class JobStatus(Base):
     name: Mapped[str] = mapped_column(String, unique=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
+    color: Mapped[str] = mapped_column(String, default="#71717a")
 
 
 class RunSettings(Base):
@@ -126,6 +127,7 @@ class Job(Base):
     salary_min: Mapped[float | None] = mapped_column(Float, nullable=True)
     salary_max: Mapped[float | None] = mapped_column(Float, nullable=True)
     salary_interval: Mapped[str | None] = mapped_column(String, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     search_config_id: Mapped[int | None] = mapped_column(
         ForeignKey("search_configs.id"), nullable=True
     )

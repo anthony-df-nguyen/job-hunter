@@ -102,12 +102,14 @@ class JobStatusCreate(BaseModel):
     name: str
     sort_order: int = 0
     is_default: bool = False
+    color: str = "#71717a"
 
 
 class JobStatusUpdate(BaseModel):
     name: str | None = None
     sort_order: int | None = None
     is_default: bool | None = None
+    color: str | None = None
 
 
 class JobStatusRead(BaseModel):
@@ -116,6 +118,7 @@ class JobStatusRead(BaseModel):
     name: str
     sort_order: int
     is_default: bool
+    color: str
 
 
 # ── Run settings ──────────────────────────────────────────────────────────────
@@ -162,6 +165,7 @@ class JobRead(BaseModel):
     salary_min: float | None
     salary_max: float | None
     salary_interval: str | None
+    description: str | None
     search_config_id: int | None
     run_id: int | None
 

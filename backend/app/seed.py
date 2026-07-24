@@ -17,12 +17,15 @@ from app.models import (
 )
 
 DEFAULT_JOB_STATUSES = [
-    ("New", True),
-    ("Reviewing", False),
-    ("Applied", False),
-    ("Interviewing", False),
-    ("Pass", False),
-    ("Closed", False),
+    # (name, is_default, color) — colors chosen to contextually match the stage:
+    # blue "new", yellow "under review", violet "applied", orange "interviewing"
+    # (active/hot), red "pass" (rejected/declined), gray "closed" (inactive).
+    ("New", True, "#3b82f6"),
+    ("Reviewing", False, "#eab308"),
+    ("Applied", False, "#8b5cf6"),
+    ("Interviewing", False, "#f97316"),
+    ("Pass", False, "#ef4444"),
+    ("Closed", False, "#71717a"),
 ]
 
 DEFAULT_GOOD_TITLE_KEYWORDS = ["data scientist", "senior data analyst"]
@@ -68,8 +71,10 @@ DEFAULT_CONTRACT_KEYWORDS = [
 def seed_job_statuses(db: Session) -> None:
     if db.query(JobStatus).count() > 0:
         return
-    for order, (name, is_default) in enumerate(DEFAULT_JOB_STATUSES):
-        db.add(JobStatus(name=name, sort_order=order, is_default=is_default))
+    for order, (name, is_default, color) in enumerate(DEFAULT_JOB_STATUSES):
+        db.add(
+            JobStatus(name=name, sort_order=order, is_default=is_default, color=color)
+        )
     db.commit()
 
 

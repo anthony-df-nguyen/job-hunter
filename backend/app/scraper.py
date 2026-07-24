@@ -235,6 +235,9 @@ def build_job_kwargs(
     interval = (
         str(interval_raw).lower() if interval_raw and str(interval_raw) != "nan" else None
     )
+    description = job.get("description")
+    if description is not None and str(description) == "nan":
+        description = None
 
     return dict(
         date_seen=today,
@@ -249,6 +252,7 @@ def build_job_kwargs(
         salary_min=min_amount,
         salary_max=max_amount,
         salary_interval=interval,
+        description=description,
         search_config_id=search_config_id,
         run_id=run_id,
     )

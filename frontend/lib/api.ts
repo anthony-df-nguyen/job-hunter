@@ -86,15 +86,15 @@ export const deleteKeywordRule = (id: number) =>
 
 // ── Job statuses ──────────────────────────────────────────────────────────
 
-export const createStatus = (name: string, sort_order: number) =>
+export const createStatus = (name: string, sort_order: number, color?: string) =>
   request<JobStatus>("/statuses", {
     method: "POST",
-    body: JSON.stringify({ name, sort_order }),
+    body: JSON.stringify({ name, sort_order, ...(color ? { color } : {}) }),
   });
 
 export const updateStatus = (
   id: number,
-  payload: Partial<{ name: string; sort_order: number; is_default: boolean }>,
+  payload: Partial<{ name: string; sort_order: number; is_default: boolean; color: string }>,
 ) =>
   request<JobStatus>(`/statuses/${id}`, {
     method: "PATCH",

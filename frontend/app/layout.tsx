@@ -7,9 +7,11 @@ import "./globals.css";
 const themeInitScript = `
 (function () {
   try {
-    if (localStorage.getItem("theme") === "dark") {
+    var dark = localStorage.getItem("theme") === "dark";
+    if (dark) {
       document.documentElement.classList.add("dark");
     }
+    document.documentElement.setAttribute("data-ag-theme-mode", dark ? "dark" : "light");
   } catch (e) {}
 })();
 `;
@@ -45,8 +47,8 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black">
         <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-          <nav className="mx-auto flex max-w-7xl items-center gap-6 px-6 py-3 text-sm font-medium">
-            <span className="text-zinc-900 dark:text-zinc-100">Job Hunter</span>
+          <nav className="mx-auto flex  items-center gap-6 px-6 py-3 text-sm font-medium">
+            <span className="uppercase font-extrabold  text-lg text-sky-500 dark:text-zinc-100">Job Hunter</span>
             <Link
               href="/"
               className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -62,7 +64,7 @@ export default function RootLayout({
             <ThemeToggle />
           </nav>
         </header>
-        <main className="mx-auto w-full  max-w-7xl  flex-1 px-6 py-6 ">{children}</main>
+        <main className="mx-auto w-full flex-1 px-6 py-6 ">{children}</main>
       </body>
     </html>
   );
