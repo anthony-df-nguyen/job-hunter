@@ -114,10 +114,10 @@ function DescriptionDetailRenderer(params: { data?: Row; maxHeight: number }) {
   return (
     <div
       style={{ maxHeight: params.maxHeight }}
-      className="overflow-y-auto border-b border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/50"
+      className="overflow-y-auto border-b border-zinc-200 bg-zinc-50 px-12 py-6  dark:border-zinc-800 dark:bg-zinc-900/50"
     >
       {row.description ? (
-        <div className="prose prose-sm prose-zinc max-w-none dark:prose-invert prose-p:my-2 prose-headings:my-2">
+        <div className="prose-sm max-w-[1200px] prose-zinc dark:prose-invert prose-p:my-2 prose-headings:my-2 text-wrap">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{row.description}</ReactMarkdown>
         </div>
       ) : (
@@ -149,17 +149,14 @@ export default function JobsTable({
   onUpdate: (id: number, patch: { status_id?: number; notes?: string }) => void;
   onDelete: (id: number) => void;
 }) {
-  const [expandedIds, setExpandedIds] = useState<Set<number>>(() => new Set());
+  const [expandedId, setExpandedId] = useState<number | null>(null);
   const [gridApi, setGridApi] = useState<GridApi<Row> | null>(null);
   const detailMaxHeight = useDetailMaxHeight();
 
+  const expandedIds = useMemo(() => new Set(expandedId === null ? [] : [expandedId]), [expandedId]);
+
   const handleToggleExpand = useCallback((id: number) => {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setExpandedId((prev) => (prev === id ? null : id));
   }, []);
 
   const columns = useJobColumns({

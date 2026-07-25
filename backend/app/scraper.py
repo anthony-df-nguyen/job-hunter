@@ -150,6 +150,12 @@ def _safe_num(val):
     return val
 
 
+def _safe_str(val, default=""):
+    if val is None or (isinstance(val, float) and math.isnan(val)):
+        return default
+    return val
+
+
 class KeywordRules:
     """Keyword lists loaded from the DB once per run, grouped by category —
     replaces the GOOD_TITLE_KEYWORDS / SKIP_TITLE_KEYWORDS /
@@ -241,14 +247,14 @@ def build_job_kwargs(
 
     return dict(
         date_seen=today,
-        title=job.get("title") or "N/A",
-        company=job.get("company") or "N/A",
-        location=job.get("location") or "N/A",
+        title=_safe_str(job.get("title"), "N/A"),
+        company=_safe_str(job.get("company"), "N/A"),
+        location=_safe_str(job.get("location"), "N/A"),
         is_remote=bool(job.get("is_remote")),
-        url=job.get("job_url") or "N/A",
+        url=_safe_str(job.get("job_url"), "N/A"),
         status_id=default_status_id,
         notes="",
-        site=(job.get("site") or "").capitalize(),
+        site=_safe_str(job.get("site"), "").capitalize(),
         salary_min=min_amount,
         salary_max=max_amount,
         salary_interval=interval,

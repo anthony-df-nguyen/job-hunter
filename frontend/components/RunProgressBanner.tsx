@@ -16,6 +16,13 @@ export default function RunProgressBanner({
     refreshInterval: (latest) => (latest?.status === "running" ? 1500 : 0),
   });
   const [cancelling, setCancelling] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (run?.status !== "running") return;
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [run?.status]);
 
   const settledRef = useRef(false);
   useEffect(() => {
@@ -71,13 +78,34 @@ export default function RunProgressBanner({
     ? `${run.current_search_title} · ${run.current_search_location}${run.current_search_is_remote ? " (remote)" : ""}`
     : "Starting…";
 
+  const startedAtUtc = run.started_at.endsWith("Z") ? run.started_at : `${run.started_at}Z`;
+  const elapsedSeconds = Math.max(0, Math.floor((now - new Date(startedAtUtc).getTime()) / 1000));
+  const minutes = Math.floor(elapsedSeconds / 60);
+  const seconds = elapsedSeconds % 60;
+  const elapsedLabel = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
   return (
     <div className="rounded-md border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-900">
       <div className="flex items-center justify-between gap-3">
-        <span>
-          {run.cancel_requested
-            ? "Cancelling — finishing current search…"
-            : `Searching ${Math.min(run.progress_completed + 1, run.progress_total)} of ${run.progress_total}: ${label}`}
+        <span className="flex items-center gap-2">
+          <svg
+            className="h-3.5 w-3.5 shrink-0 animate-spin text-zinc-500 dark:text-zinc-400"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+          <span>
+            {run.cancel_requested
+              ? "Cancelling — finishing current search…"
+              : `Searching ${Math.min(run.progress_completed + 1, run.progress_total)} of ${run.progress_total}: ${label}`}
+          </span>
+          <span className="tabular-nums text-zinc-400 dark:text-zinc-500">{elapsedLabel}</span>
         </span>
         <button
           onClick={handleCancel}
@@ -93,6 +121,9 @@ export default function RunProgressBanner({
           style={{ width: `${pct}%` }}
         />
       </div>
+      <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+        This can take a few minutes, even for smaller searches — feel free to leave this page.
+      </p>
     </div>
   );
 }
