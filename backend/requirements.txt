@@ -5,3 +5,7 @@ pydantic
 python-jobspy
 beautifulsoup4
 pandas
+openai
+pdfplumber
+python-docx
+python-multipart

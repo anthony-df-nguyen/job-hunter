@@ -5,8 +5,9 @@ import useSWR from "swr";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import JobsTable from "@/components/JobsTable";
 import RunProgressBanner from "@/components/RunProgressBanner";
+import TailoredResumeModal from "@/components/TailoredResumeModal";
 import UndoToastStack, { type PendingDeleteToast } from "@/components/UndoToastStack";
-import { deleteAllJobs, deleteJob, fetcher, startRun, updateJob } from "@/lib/api";
+import { deleteAllJobs, deleteJob, fetcher, startRun, tailorResume, updateJob } from "@/lib/api";
 import { UNDO_WINDOW_MS } from "@/lib/constants";
 import type { Job, JobStatus, Run } from "@/lib/types";
 
@@ -27,6 +28,10 @@ export default function JobsPage() {
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDeleteAllOpen, setConfirmDeleteAllOpen] = useState(false);
+  const [tailorOpen, setTailorOpen] = useState(false);
+  const [tailorLoading, setTailorLoading] = useState(false);
+  const [tailorError, setTailorError] = useState<string | null>(null);
+  const [tailorResult, setTailorResult] = useState<string | null>(null);
   const [pendingDeletes, setPendingDeletes] = useState<Map<number, PendingDelete>>(new Map());
   const pendingDeletesRef = useRef(pendingDeletes);
   pendingDeletesRef.current = pendingDeletes;
@@ -154,6 +159,21 @@ export default function JobsPage() {
     paused: p.paused,
   }));
 
+  async function handleTailor(id: number) {
+    setTailorOpen(true);
+    setTailorLoading(true);
+    setTailorError(null);
+    setTailorResult(null);
+    try {
+      const { resume } = await tailorResume(id);
+      setTailorResult(resume);
+    } catch (e) {
+      setTailorError(e instanceof Error ? e.message : "Failed to tailor resume");
+    } finally {
+      setTailorLoading(false);
+    }
+  }
+
   async function handleDeleteAll() {
     setConfirmDeleteAllOpen(false);
     await deleteAllJobs();
@@ -206,6 +226,15 @@ export default function JobsPage() {
         statuses={statuses ?? []}
         onUpdate={handleUpdate}
         onDelete={handleDelete}
+        onTailor={handleTailor}
+      />
+
+      <TailoredResumeModal
+        open={tailorOpen}
+        loading={tailorLoading}
+        error={tailorError}
+        resume={tailorResult}
+        onClose={() => setTailorOpen(false)}
       />
 
       <UndoToastStack

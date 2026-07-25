@@ -1,3 +1,20 @@
+"""SQLAlchemy models — one class per SQLite table.
+
+How to read these: each class attribute like
+`term: Mapped[str] = mapped_column(String, unique=True)` declares one
+column — `Mapped[str]` is the Python type you get back, `String` the SQL
+type, and options like `unique=`, `default=`, `index=` become column
+constraints. `Mapped[str | None]` + `nullable=True` means the column may
+be NULL. `ForeignKey("job_titles.id")` stores a reference to a row in
+another table, and `relationship()` is the ORM convenience on top of it —
+e.g. `config.job_title` follows the foreign key and hands you the actual
+JobTitle object.
+
+Tables are created at startup by `Base.metadata.create_all()` in main.py.
+Note that create_all only adds *missing tables* — adding a column to an
+existing table needs a manual ALTER TABLE in main._run_migrations().
+"""
+
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -107,6 +124,23 @@ class RunSettings(Base):
     hours_old: Mapped[int] = mapped_column(Integer, default=24)
     min_salary: Mapped[int | None] = mapped_column(Integer, nullable=True)
     include_jobs_without_salary: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class AppSettings(Base):
+    """Singleton row (id is always 1) holding resume-tailoring config: the
+    extracted base resume text, the global system prompt sent to the LLM,
+    and the Ollama connection details (base URL + model name)."""
+
+    __tablename__ = "app_settings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    base_resume_text: Mapped[str] = mapped_column(Text, default="")
+    base_resume_filename: Mapped[str | None] = mapped_column(String, nullable=True)
+    system_prompt: Mapped[str] = mapped_column(Text, default="")
+    llm_base_url: Mapped[str] = mapped_column(
+        String, default="http://localhost:11434/v1"
+    )
+    llm_model: Mapped[str] = mapped_column(String, default="llama3.1")
 
 
 class Job(Base):

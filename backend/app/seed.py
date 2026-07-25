@@ -8,12 +8,22 @@ safe and never overwrites user edits.
 from sqlalchemy.orm import Session
 
 from app.models import (
+    AppSettings,
     JobStatus,
     JobTitle,
     KeywordRule,
     Location,
     RunSettings,
     SearchConfig,
+)
+
+DEFAULT_SYSTEM_PROMPT = (
+    "You are an expert resume writer. Rewrite the candidate's base resume to "
+    "better match the target job description, emphasizing relevant "
+    "experience and keywords from the posting. Keep it truthful — never "
+    "invent experience, employers, or skills the candidate doesn't have. "
+    "Keep the same overall structure and length as the base resume. Output "
+    "only the tailored resume text, no commentary."
 )
 
 DEFAULT_JOB_STATUSES = [
@@ -108,6 +118,13 @@ def seed_run_settings(db: Session) -> None:
     db.commit()
 
 
+def seed_app_settings(db: Session) -> None:
+    if db.query(AppSettings).count() > 0:
+        return
+    db.add(AppSettings(id=1, system_prompt=DEFAULT_SYSTEM_PROMPT))
+    db.commit()
+
+
 def seed_locations(db: Session) -> None:
     """Guarantees the "Remote" location always exists, independent of whether any
     search combos exist — it's a magic value the location field's autocomplete and
@@ -164,5 +181,6 @@ def seed_all(db: Session) -> None:
     seed_job_statuses(db)
     seed_keyword_rules(db)
     seed_run_settings(db)
+    seed_app_settings(db)
     seed_locations(db)
     seed_titles_locations_and_searches(db)

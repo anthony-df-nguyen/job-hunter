@@ -1,3 +1,23 @@
+"""Pydantic schemas — the shapes of the API's request and response JSON.
+
+These are separate from the SQLAlchemy models on purpose: models.py
+describes what's stored in the database, this file describes what goes
+over the wire, and the two don't have to match (e.g. clients can never set
+a Job's `url`, and `Run.id` is server-generated).
+
+Each resource follows the same three-schema convention:
+
+- `XxxCreate` — POST body. Required fields have no default; FastAPI
+  rejects a request missing them with an automatic 422.
+- `XxxUpdate` — PATCH/PUT body. Every field is `| None = None` (optional)
+  so clients send only the fields they want to change; the routers apply
+  them with `model_dump(exclude_unset=True)`, which skips fields that
+  weren't in the request at all.
+- `XxxRead` — response shape. `from_attributes=True` lets Pydantic build
+  it straight from a SQLAlchemy ORM object (reading attributes instead of
+  dict keys), which is why endpoints can just `return row`.
+"""
+
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -139,6 +159,28 @@ class RunSettingsRead(BaseModel):
     hours_old: int
     min_salary: int | None
     include_jobs_without_salary: bool
+
+
+# ── App settings ──────────────────────────────────────────────────────────────
+
+
+class AppSettingsUpdate(BaseModel):
+    system_prompt: str | None = None
+    llm_base_url: str | None = None
+    llm_model: str | None = None
+
+
+class AppSettingsRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    base_resume_text: str
+    base_resume_filename: str | None
+    system_prompt: str
+    llm_base_url: str
+    llm_model: str
+
+
+class TailoredResumeRead(BaseModel):
+    resume: str
 
 
 # ── Jobs ──────────────────────────────────────────────────────────────────────

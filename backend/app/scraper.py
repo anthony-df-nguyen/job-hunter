@@ -138,21 +138,21 @@ def normalize_url(url: str) -> str:
     return url.rstrip("/")
 
 
-def _safe_str(val) -> str:
+def _safe_str(val, default: str = "") -> str:
+    """Coerce a scraped field to a string, mapping missing values to
+    `default`. JobSpy returns a pandas DataFrame, and pandas represents
+    missing cells as NaN (a float) rather than None — so "missing" here
+    means either None or NaN."""
     if val is None or (isinstance(val, float) and math.isnan(val)):
-        return ""
+        return default
     return str(val)
 
 
 def _safe_num(val):
+    """Same idea for numeric fields: normalize pandas NaN to None so it's
+    stored as SQL NULL instead of the float NaN."""
     if val is None or (isinstance(val, float) and math.isnan(val)):
         return None
-    return val
-
-
-def _safe_str(val, default=""):
-    if val is None or (isinstance(val, float) and math.isnan(val)):
-        return default
     return val
 
 
@@ -204,16 +204,16 @@ def passes_filters(
         if kw in title or kw in job_type:
             return False, f"Contract/temp role: '{kw}' in title or job_type"
 
-    min_amount = job.get("min_amount")
-    max_amount = job.get("max_amount")
+    # A salary only "counts" if it's yearly and both ends of the range are
+    # real numbers (pandas fills missing cells with NaN, hence _safe_num).
+    min_amount = _safe_num(job.get("min_amount"))
+    max_amount = _safe_num(job.get("max_amount"))
     interval_raw = job.get("interval")
     interval = (
         str(interval_raw).lower() if interval_raw and str(interval_raw) != "nan" else ""
     )
     salary_present = (
-        interval == "yearly"
-        and min_amount not in (None, float("nan"))
-        and max_amount not in (None, float("nan"))
+        interval == "yearly" and min_amount is not None and max_amount is not None
     )
     if not salary_present:
         if include_jobs_without_salary:

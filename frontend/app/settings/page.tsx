@@ -1,3 +1,4 @@
+import AppSettingsForm from "@/components/AppSettingsForm";
 import JobStatusesEditor from "@/components/JobStatusesEditor";
 import KeywordRulesEditor from "@/components/KeywordRulesEditor";
 import RunSettingsForm from "@/components/RunSettingsForm";
@@ -42,6 +43,10 @@ export default function SettingsPage() {
 
         <Section title="Job Statuses">
           <JobStatusesEditor />
+        </Section>
+
+        <Section title="Resume Tailoring">
+          <AppSettingsForm />
         </Section>
       </div>
     </div>

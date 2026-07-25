@@ -41,6 +41,18 @@ export interface JobStatus {
   color: string;
 }
 
+export interface AppSettings {
+  base_resume_text: string;
+  base_resume_filename: string | null;
+  system_prompt: string;
+  llm_base_url: string;
+  llm_model: string;
+}
+
+export interface TailoredResume {
+  resume: string;
+}
+
 export interface RunSettings {
   sites: string[];
   results_per_search: number;

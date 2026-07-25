@@ -143,11 +143,13 @@ export default function JobsTable({
   statuses,
   onUpdate,
   onDelete,
+  onTailor,
 }: {
   jobs: Job[];
   statuses: JobStatus[];
   onUpdate: (id: number, patch: { status_id?: number; notes?: string }) => void;
   onDelete: (id: number) => void;
+  onTailor: (id: number) => void;
 }) {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [gridApi, setGridApi] = useState<GridApi<Row> | null>(null);
@@ -163,6 +165,7 @@ export default function JobsTable({
     statuses,
     onUpdate,
     onDelete,
+    onTailor,
     expandedIds,
     onToggleExpand: handleToggleExpand,
   });

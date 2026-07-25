@@ -1,4 +1,5 @@
 import type {
+  AppSettings,
   Job,
   JobStatus,
   JobTitle,
@@ -8,6 +9,7 @@ import type {
   Run,
   RunSettings,
   SearchConfig,
+  TailoredResume,
 } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -109,6 +111,25 @@ export const deleteStatus = (id: number) =>
 export const updateRunSettings = (payload: Partial<RunSettings>) =>
   request<RunSettings>("/run-settings", { method: "PUT", body: JSON.stringify(payload) });
 
+// ── App settings ──────────────────────────────────────────────────────────
+
+export const updateAppSettings = (payload: Partial<AppSettings>) =>
+  request<AppSettings>("/app-settings", { method: "PUT", body: JSON.stringify(payload) });
+
+export async function uploadResume(file: File): Promise<AppSettings> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${BASE_URL}/app-settings/resume`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.detail ?? `Request failed: ${res.status}`);
+  }
+  return res.json();
+}
+
 // ── Jobs ──────────────────────────────────────────────────────────────────
 
 export const updateJob = (id: number, payload: Partial<{ status_id: number; notes: string }>) =>
@@ -117,6 +138,9 @@ export const updateJob = (id: number, payload: Partial<{ status_id: number; note
 export const deleteJob = (id: number) => request<void>(`/jobs/${id}`, { method: "DELETE" });
 
 export const deleteAllJobs = () => request<void>("/jobs", { method: "DELETE" });
+
+export const tailorResume = (id: number) =>
+  request<TailoredResume>(`/jobs/${id}/tailor-resume`, { method: "POST" });
 
 // ── Runs ──────────────────────────────────────────────────────────────────
 

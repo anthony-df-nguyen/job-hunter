@@ -1,8 +1,13 @@
+"""CRUD endpoints for locations (place labels, including the literal
+string "Remote"). Same structure as job_titles.py — see the comments there
+for the FastAPI/SQLAlchemy plumbing this relies on."""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import get_db
+from app.routers.common import apply_updates, get_or_404
 
 router = APIRouter(prefix="/locations", tags=["locations"])
 
@@ -28,11 +33,8 @@ def create_location(payload: schemas.LocationCreate, db: Session = Depends(get_d
 def update_location(
     location_id: int, payload: schemas.LocationUpdate, db: Session = Depends(get_db)
 ):
-    row = db.get(models.Location, location_id)
-    if row is None:
-        raise HTTPException(404, "Location not found")
-    for field, value in payload.model_dump(exclude_unset=True).items():
-        setattr(row, field, value)
+    row = get_or_404(db, models.Location, location_id, "Location")
+    apply_updates(row, payload)
     db.commit()
     db.refresh(row)
     return row
@@ -40,9 +42,7 @@ def update_location(
 
 @router.delete("/{location_id}", status_code=204)
 def delete_location(location_id: int, db: Session = Depends(get_db)):
-    row = db.get(models.Location, location_id)
-    if row is None:
-        raise HTTPException(404, "Location not found")
+    row = get_or_404(db, models.Location, location_id, "Location")
     in_use = (
         db.query(models.SearchConfig).filter_by(location_id=location_id).count() > 0
     )

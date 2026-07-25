@@ -1,3 +1,10 @@
+"""FastAPI application entry point — run with `uvicorn app.main:app`.
+
+Wires everything together: creates/updates the SQLite schema at startup,
+seeds default data, mounts every router, and allows the Next.js dev server
+(localhost:3000) to call this API cross-origin.
+"""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -6,6 +13,7 @@ from sqlalchemy import text
 
 from app.database import Base, SessionLocal, engine
 from app.routers import (
+    app_settings,
     job_statuses,
     job_titles,
     jobs,
@@ -47,6 +55,9 @@ def _run_migrations():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Startup hook: code before `yield` runs once when the server boots
+    (create tables → patch schema → seed defaults), code after would run
+    on shutdown (we don't need any)."""
     Base.metadata.create_all(bind=engine)
     _run_migrations()
     db = SessionLocal()
@@ -59,6 +70,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Job Hunter", lifespan=lifespan)
 
+# Browsers block cross-origin requests by default; this tells them the
+# frontend dev server (a different port = different origin) may call us.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -72,6 +85,7 @@ app.include_router(search_configs.router)
 app.include_router(keyword_rules.router)
 app.include_router(job_statuses.router)
 app.include_router(run_settings.router)
+app.include_router(app_settings.router)
 app.include_router(runs.router)
 app.include_router(jobs.router)
 
