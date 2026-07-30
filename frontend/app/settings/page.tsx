@@ -45,9 +45,9 @@ export default function SettingsPage() {
           <JobStatusesEditor />
         </Section>
 
-        <Section title="Resume Tailoring">
+        {/* <Section title="Resume Tailoring">
           <AppSettingsForm />
-        </Section>
+        </Section> */}
       </div>
     </div>
   );

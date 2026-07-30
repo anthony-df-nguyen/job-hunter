@@ -156,35 +156,35 @@ export function useJobColumns({
           if (event.data) onUpdate(event.data.id, { notes: event.newValue ?? "" });
         },
       },
-      {
-        colId: "tailor",
-        headerName: "",
-        width: 50,
-        minWidth: 50,
-        maxWidth: 50,
-        sortable: false,
-        resizable: false,
-        pinned: "right",
-        suppressMovable: true,
-        cellRenderer: (params: ICellRendererParams<Job>) => {
-          const job = params.data;
-          if (!job) return null;
-          const disabled = !job.description;
-          return (
-            <button
-              onClick={() => onTailor(job.id)}
-              disabled={disabled}
-              className="text-zinc-400 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-30 dark:text-zinc-500 dark:hover:text-blue-400"
-              aria-label={`Tailor resume for ${job.title}`}
-              title={disabled ? "No description to tailor against" : "Tailor resume"}
-            >
-              <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-            </button>
-          );
-        },
-      },
+      // {
+      //   colId: "tailor",
+      //   headerName: "",
+      //   width: 50,
+      //   minWidth: 50,
+      //   maxWidth: 50,
+      //   sortable: false,
+      //   resizable: false,
+      //   pinned: "right",
+      //   suppressMovable: true,
+      //   cellRenderer: (params: ICellRendererParams<Job>) => {
+      //     const job = params.data;
+      //     if (!job) return null;
+      //     const disabled = !job.description;
+      //     return (
+      //       <button
+      //         onClick={() => onTailor(job.id)}
+      //         disabled={disabled}
+      //         className="text-zinc-400 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-30 dark:text-zinc-500 dark:hover:text-blue-400"
+      //         aria-label={`Tailor resume for ${job.title}`}
+      //         title={disabled ? "No description to tailor against" : "Tailor resume"}
+      //       >
+      //         <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+      //           <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+      //         </svg>
+      //       </button>
+      //     );
+      //   },
+      // },
       {
         colId: "delete",
         headerName: "",
