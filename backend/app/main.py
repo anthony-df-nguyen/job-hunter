@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.database import Base, SessionLocal, engine
+from app.database import DB_PATH, Base, SessionLocal, engine
 from app.routers import (
     app_settings,
     job_statuses,
@@ -23,43 +23,71 @@ from app.routers import (
     runs,
     search_configs,
 )
-from app.seed import DEFAULT_JOB_STATUSES, seed_all
+from app.seed import seed_all
+
+# The schema version the models in models.py describe. The version of an
+# existing database file lives in SQLite's built-in `PRAGMA user_version`
+# (an integer in the file header, 0 on a brand-new file).
+SCHEMA_VERSION = 1
+
+# Upgrade steps for databases created at an older SCHEMA_VERSION:
+# MIGRATIONS[n] lists the SQL statements that take a version-n database to
+# version n + 1. To change the schema: edit models.py (covers fresh
+# databases via create_all), append the matching ALTER/UPDATE statements
+# here (covers existing databases), and bump SCHEMA_VERSION.
+MIGRATIONS: dict[int, list[str]] = {}
 
 
-def _run_migrations():
-    """No migration framework (Alembic) is set up yet — `create_all` only
-    creates missing tables, not missing columns on existing ones, so columns
-    added after the initial schema need a manual ALTER TABLE here."""
+def _init_schema():
+    """Create or upgrade the database schema.
+
+    Fresh databases get the full current schema from `create_all()` and are
+    stamped with SCHEMA_VERSION directly. Existing databases run each
+    pending MIGRATIONS step in order, stamping the new version after each
+    step so an interrupted upgrade resumes where it left off.
+    """
     with engine.connect() as conn:
-        columns = {row[1] for row in conn.execute(text("PRAGMA table_info(jobs)"))}
-        if "description" not in columns:
-            conn.execute(text("ALTER TABLE jobs ADD COLUMN description TEXT"))
-            conn.commit()
+        existing_tables = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type = 'table'")
+        ).all()
+    fresh = not existing_tables
 
-        status_columns = {
-            row[1] for row in conn.execute(text("PRAGMA table_info(job_statuses)"))
-        }
-        if "color" not in status_columns:
-            conn.execute(
-                text("ALTER TABLE job_statuses ADD COLUMN color TEXT DEFAULT '#71717a'")
+    Base.metadata.create_all(bind=engine)
+
+    with engine.connect() as conn:
+        if fresh:
+            conn.execute(text(f"PRAGMA user_version = {SCHEMA_VERSION}"))
+            conn.commit()
+            return
+
+        version = conn.execute(text("PRAGMA user_version")).scalar()
+        if version > SCHEMA_VERSION:
+            raise RuntimeError(
+                f"Database is at schema version {version} but this build only "
+                f"knows version {SCHEMA_VERSION} — it was created by a newer "
+                "version of the app. Update the app, or delete the database "
+                f"file to start fresh: {DB_PATH}"
             )
-            for name, _is_default, color in DEFAULT_JOB_STATUSES:
-                conn.execute(
-                    text(
-                        "UPDATE job_statuses SET color = :color WHERE name = :name"
-                    ),
-                    {"color": color, "name": name},
+        while version < SCHEMA_VERSION:
+            if version not in MIGRATIONS:
+                raise RuntimeError(
+                    f"Database is at schema version {version} with no upgrade "
+                    "path (it likely predates schema versioning). Delete the "
+                    f"database file to start fresh: {DB_PATH}"
                 )
+            for statement in MIGRATIONS[version]:
+                conn.execute(text(statement))
+            version += 1
+            conn.execute(text(f"PRAGMA user_version = {version}"))
             conn.commit()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup hook: code before `yield` runs once when the server boots
-    (create tables → patch schema → seed defaults), code after would run
-    on shutdown (we don't need any)."""
-    Base.metadata.create_all(bind=engine)
-    _run_migrations()
+    (create/upgrade schema → seed defaults), code after would run on
+    shutdown (we don't need any)."""
+    _init_schema()
     db = SessionLocal()
     try:
         seed_all(db)

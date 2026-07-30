@@ -77,10 +77,16 @@ building the frontend.
   progresses — the frontend polls this row rather than streaming logs, so
   progress survives a page refresh mid-run.
 
-**Migrations**: no Alembic. `Base.metadata.create_all()` at startup creates
-missing *tables* only; columns added to existing tables need a manual
-`ALTER TABLE` in `main._run_migrations()` (currently `jobs.description` and
-`job_statuses.color`). `seed.py` seeds defaults on startup. Shared router
+**Migrations**: no Alembic — schema versioning via SQLite's
+`PRAGMA user_version`, handled by `main._init_schema()` at startup. Fresh
+databases get the full schema from `Base.metadata.create_all()` and are
+stamped with `main.SCHEMA_VERSION` (currently 1); existing databases run
+pending entries from `main.MIGRATIONS` (a dict mapping version n → SQL
+statements that upgrade to n+1) in order, stamping after each step. To
+change the schema: edit `models.py`, append the matching statements to
+`MIGRATIONS`, bump `SCHEMA_VERSION`. Databases that are newer than the
+build or predate versioning fail startup with an explanatory error.
+`seed.py` seeds defaults on startup. Shared router
 helpers (`get_or_404`, `apply_updates`, singleton `get_settings_row`) live
 in `backend/app/routers/common.py`.
 
