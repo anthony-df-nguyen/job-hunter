@@ -13,7 +13,11 @@ Copy this whole repo onto your computer — the folder structure (`backend/`,
 
 - Python 3.10+ (`python3 --version` to check; otherwise get it from
   python.org)
-- Node.js 18+ (`node --version` to check; otherwise get it from nodejs.org)
+- Node.js 20.9+ (`node --version` to check; otherwise get it from
+  nodejs.org)
+
+The start scripts check both versions up front and stop with a message
+telling you what to install if either is too old.
 
 ## 3. Run it
 
